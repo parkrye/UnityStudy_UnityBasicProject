@@ -1,41 +1,39 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEditor.PlayerSettings;
 
 public class EnemyController : MonoBehaviour
 {
-    public Transform cannonTransform;
-    public GameObject shellPrefab;
-    NavMeshAgent navMeshAgent;
-    ParticleSystem shellParticle;
+    [SerializeField] Transform cannonTransform;
+    [SerializeField] GameObject shellPrefab;
+    [SerializeField] GameObject lifeVesslePrefab;
+    [SerializeField] NavMeshAgent navMeshAgent;
+    [SerializeField] ParticleSystem tankParticle, shellParticle;
 
-    [SerializeField] float power;
-    [SerializeField] float coolTime;
-    [SerializeField] bool isReady;
+    [SerializeField] [Range(60f, 120f)] float viewAngle;
+    [SerializeField][Range(20f, 60f)] float viewDistance;
+    [SerializeField] LayerMask targetMask;
+    [SerializeField] bool live = true;
 
-    [SerializeField] private float viewAngle;       // 시야 각도
-    [SerializeField] private float viewDistance;    // 시야 거리
-    [SerializeField] private LayerMask targetMask;  // 타겟 마스크
+    enum Mode { Noramal, Battle }
+    [SerializeField] Mode mode = Mode.Noramal;
 
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] Vector3 startPoint, endPoint, targetPosition;
+
+    public void SetMoveRoute(Vector3 pont1, Vector3 point2)
     {
-        navMeshAgent = GetComponent<NavMeshAgent>();
-        shellParticle = GetComponentInChildren<ParticleSystem>();
+        startPoint = pont1;
+        endPoint = point2;
+        navMeshAgent.SetDestination(endPoint);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!PlayerCheck())
+        if(endPoint != null && live)
         {
-            MoveAround();
-        }
-        else
-        {
-            AttackPlayer();
+            PlayerCheck();
+            Move();
         }
     }
 
@@ -54,34 +52,87 @@ public class EnemyController : MonoBehaviour
     /// 플레이어를 확인하는 시야 메소드
     /// </summary>
     /// <returns>플레이어 발견 여부</returns>
-    bool PlayerCheck()
+    void PlayerCheck()
     {
-
-        Debug.DrawRay(transform.position, AngleToDir(viewAngle * 0.5f) * viewDistance, Color.blue);
-        Debug.DrawRay(transform.position, AngleToDir(viewAngle * -0.5f) * viewDistance, Color.blue);
-        Debug.DrawRay(transform.position, AngleToDir(viewAngle) * viewDistance, Color.cyan);
+        Debug.DrawRay(transform.position, AngleToDir(transform.eulerAngles.y + viewAngle * 0.5f) * viewDistance, Color.blue);
+        Debug.DrawRay(transform.position, AngleToDir(transform.eulerAngles.y - viewAngle * 0.5f) * viewDistance, Color.blue);
 
         Collider[] targets = Physics.OverlapSphere(transform.position, viewDistance, targetMask);
         foreach (Collider target in targets)
         {
             Vector3 targetPos = target.transform.position;
             Vector3 targetDir = (targetPos - transform.position).normalized;
-            float targetAngle = Mathf.Acos(Vector3.Dot(AngleToDir(viewAngle), targetDir)) * Mathf.Rad2Deg;
-            if(targetAngle <= viewAngle * 0.5f && !Physics.Raycast(transform.position, targetDir, viewDistance, targetMask))
+            float targetAngle = Vector3.Angle(targetDir, transform.forward);
+            if (targetAngle <= viewAngle * 0.5f && Physics.Raycast(transform.position, targetDir, viewDistance, targetMask))
             {
-                return true;
+                Debug.DrawLine(transform.position, targetPos, Color.red);
+                targetPosition = targetPos;
+                if(mode == Mode.Noramal)
+                {
+                    mode = Mode.Battle;
+                    StartCoroutine(AttackPlayer());
+                }
+                return;
             }
         }
-        return false;
+        StopCoroutine(AttackPlayer());
+        mode = Mode.Noramal;
     }
 
-    void MoveAround()
+    void Move()
     {
-
+        if (mode == Mode.Noramal)
+        {
+            if (Vector3.Distance(transform.position, endPoint) <= 10f)
+            {
+                Vector3 temp = endPoint;
+                endPoint = startPoint;
+                startPoint = temp;
+                navMeshAgent.SetDestination(endPoint);
+            }
+        }
+        else
+        {
+            if (Vector3.Distance(transform.position, targetPosition) <= 20f)
+            {
+                navMeshAgent.SetDestination(targetPosition);
+            }
+            else
+            {
+                navMeshAgent.destination = transform.position;
+                transform.LookAt(targetPosition);
+            }
+        }
     }
 
-    void AttackPlayer()
+    IEnumerator AttackPlayer()
     {
-        Debug.Log("Find");
+        while(mode == Mode.Battle)
+        {
+            shellParticle.Play();
+            Instantiate(shellPrefab, cannonTransform.position, cannonTransform.rotation);
+            yield return new WaitForSeconds(10);
+        }
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.transform.tag == "Shell")
+        {
+            live = false;
+            StopCoroutine(AttackPlayer());
+            tankParticle.Play();
+            EnemyManager.GetEnemyManager().BreakEnemy();
+            StartCoroutine(DestroyThis());
+        }
+    }
+
+    IEnumerator DestroyThis()
+    {
+        yield return new WaitForSeconds(1f);
+        if (Random.Range(0, 5) == 0)
+            Instantiate(lifeVesslePrefab, transform.position, Quaternion.identity);
+        Destroy(gameObject);
+    }
+
 }

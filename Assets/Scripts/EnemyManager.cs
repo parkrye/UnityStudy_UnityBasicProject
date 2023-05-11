@@ -1,18 +1,38 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyManager : MonoBehaviour
 {
-    public GameObject enemyPrafab;
-    public BoxCollider spawnRangeCollider;
+    static EnemyManager enemyManager;
 
-    [SerializeField] const int enemyLimit = 10;
+    private void Awake()
+    {
+        enemyManager = this;
+    }
+
+    public static EnemyManager GetEnemyManager()
+    {
+        return enemyManager;
+    }
+
+    [SerializeField] GameObject enemyPrafab;
+    [SerializeField] BoxCollider spawnRangeCollider;
+    [SerializeField] NavMeshAgent agent;
+
+    [SerializeField] int enemyLimit = 10;
     [SerializeField] int enemyCount = 0;
 
-    private void Start()
+    void Start()
     {
         StartCoroutine(SpawnEnemy());
+    }
+
+    public void BreakEnemy()
+    {
+        enemyLimit++;
+        enemyCount--;
+        GameManager.GetGameManager().Score++;
     }
 
     IEnumerator SpawnEnemy()
@@ -21,9 +41,18 @@ public class EnemyManager : MonoBehaviour
         {
             if(enemyCount < enemyLimit)
             {
-                Instantiate(enemyPrafab, Return_RandomPosition(), Quaternion.identity);
+                Vector3 spawnPos = Return_RandomPosition();
+                while (!agent.CalculatePath(spawnPos, new NavMeshPath()))
+                    spawnPos = Return_RandomPosition();
+                Vector3 movePos = Return_RandomPosition();
+                while (Vector3.Distance(spawnPos, movePos) < 50 || !agent.CalculatePath(movePos, new NavMeshPath()))
+                    movePos = Return_RandomPosition();
+
+                GameObject enemy = Instantiate(enemyPrafab, spawnPos, Quaternion.identity);
+                enemy.GetComponent<EnemyController>().SetMoveRoute(spawnPos, movePos);
+                enemyCount++;
             }
-            yield return new WaitForSecondsRealtime(Random.Range(10, 30));
+            yield return new WaitForSeconds(Random.Range(10, 30));
         }
     }
 

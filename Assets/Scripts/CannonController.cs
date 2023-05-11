@@ -1,31 +1,28 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class CannonController : MonoBehaviour
 {
-    public Transform cannonTransform;
-    public GameObject shellPrefab;
-    ParticleSystem shellParticle;
+    [SerializeField] Transform cannonTransform;
+    [SerializeField] GameObject shellPrefab;
+    [SerializeField] ParticleSystem shellParticle;
 
-    [SerializeField] float power;
     [SerializeField] float coolTime;
-    [SerializeField] bool isReady;
 
-    void Start()
+    private void Start()
     {
-        isReady = true;
-        shellParticle = GetComponentInChildren<ParticleSystem>();
         StartCoroutine(CoolTime());
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (isReady && Input.GetKeyUp(KeyCode.Space))
+        if (GameManager.GetGameManager().Ready && Input.GetKeyUp(KeyCode.Space))
         {
             shellParticle.Play();
             Instantiate(shellPrefab, cannonTransform.position, cannonTransform.rotation);
-            isReady = false;
+            GameManager.GetGameManager().Ready = false;
         }
     }
 
@@ -33,8 +30,8 @@ public class CannonController : MonoBehaviour
     {
         while (true)
         {
-            yield return new WaitForSecondsRealtime(coolTime);
-            isReady = true;
+            yield return new WaitForSeconds(coolTime);
+            GameManager.GetGameManager().Ready = true;
         }
     }
 }

@@ -27,16 +27,10 @@ public class GameManager : MonoBehaviour
         return gameManager;
     }
 
-    int score;
+    [SerializeField] int score = 0, life = 10;
+    [SerializeField] bool ready = true;
 
-    public void AddScore(int add = 1)
-    {
-        score += add;
-        Debug.Log(score);
-    }
-
-    public int GetScore()
-    {
-        return score;
-    }
+    public int Score { get { return score; } set { score = value; UIManager.GetUIManager().UpdateUI(); } }
+    public int Life { get { return life; } set { life = value; UIManager.GetUIManager().UpdateUI(); if (life == 0) UIManager.GetUIManager().GameOver(); } }
+    public bool Ready { get { return ready; } set { ready = value; UIManager.GetUIManager().UpdateUI(); } }
 }

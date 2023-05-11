@@ -2,18 +2,10 @@ using UnityEngine;
 
 public class TankController : MonoBehaviour
 {
-    new Rigidbody rigidbody;
-    public Transform turretTransform;
+    [SerializeField] new Rigidbody rigidbody;
+    [SerializeField] Transform turretTransform;
 
     [SerializeField] float power;
-    const int turretRotationLimit = 300;
-    int turretRotation = 0;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        rigidbody = GetComponent<Rigidbody>();
-    }
 
     // Update is called once per frame
     void Update()
@@ -34,21 +26,21 @@ public class TankController : MonoBehaviour
 
     void TurretMovement()
     {
-        if(Input.GetKey(KeyCode.Q)) 
+        if(Input.GetKey(KeyCode.Q))
         {
-            if(turretRotation > -turretRotationLimit)
-            {
-                turretTransform.localEulerAngles -= transform.up / 5;
-                turretRotation--;
-            }
+            turretTransform.localEulerAngles -= transform.up / 5;
         }
         else if (Input.GetKey(KeyCode.E))
         {
-            if (turretRotation < turretRotationLimit)
-            {
-                turretTransform.localEulerAngles += transform.up / 5;
-                turretRotation++;
-            }
+            turretTransform.localEulerAngles += transform.up / 5;
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.transform.tag == "Shell")
+        {
+            GameManager.GetGameManager().Life--;
         }
     }
 }

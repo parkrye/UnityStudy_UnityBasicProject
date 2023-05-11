@@ -3,26 +3,27 @@ using UnityEngine;
 
 public class ShellManager : MonoBehaviour
 {
-    new Rigidbody rigidbody;
+    [SerializeField] new Rigidbody rigidbody;
+    [SerializeField] new ParticleSystem particleSystem;
 
     [SerializeField] float power;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        rigidbody = GetComponent<Rigidbody>();
         rigidbody.AddForce(transform.forward * power, ForceMode.Force);
-        StartCoroutine(SelfDestroyer());
+        StartCoroutine(SelfDestroyer(10f));
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        Destroy(gameObject);
+        particleSystem.Play();
+        GetComponent<MeshRenderer>().enabled = false;
+        StartCoroutine(SelfDestroyer(1f));
     }
 
-    IEnumerator SelfDestroyer()
+    IEnumerator SelfDestroyer(float time)
     {
-        yield return new WaitForSecondsRealtime(10f);
+        yield return new WaitForSeconds(time);
         Destroy(gameObject);
     }
 }
