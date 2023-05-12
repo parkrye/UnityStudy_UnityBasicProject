@@ -2,8 +2,14 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-
     static GameManager gameManager;
+
+    [SerializeField] GameObject tank;
+    [SerializeField] CameraController cameraController;
+    [SerializeField] int score = 0, life = 10;
+
+    public enum ShotMode { Ready, Shot, Reload }
+    [SerializeField] ShotMode shot = ShotMode.Ready;
 
     private void Awake()
     {
@@ -18,6 +24,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     public static GameManager GetGameManager()
     {
         if (gameManager == null)
@@ -27,10 +34,14 @@ public class GameManager : MonoBehaviour
         return gameManager;
     }
 
-    [SerializeField] int score = 0, life = 10;
-    [SerializeField] bool ready = true;
+    private void Start()
+    {
+        tank.GetComponent<CannonController>().AddObserver(UIManager.GetUIManager());
+        tank.GetComponent<CannonController>().AddObserver(cameraController);
+        tank.GetComponent<TankController>().AddObserver(UIManager.GetUIManager());
+    }
 
-    public int Score { get { return score; } set { score = value; UIManager.GetUIManager().UpdateUI(); } }
-    public int Life { get { return life; } set { life = value; UIManager.GetUIManager().UpdateUI(); if (life == 0) UIManager.GetUIManager().GameOver(); } }
-    public bool Ready { get { return ready; } set { ready = value; UIManager.GetUIManager().UpdateUI(); } }
+    public int Score { get { return score; } set { score = value; } }
+    public int Life { get { return life; } set { life = value > 100 ? 100 : value; } }
+    public ShotMode Shot { get { return shot; } set { shot = value; } }
 }

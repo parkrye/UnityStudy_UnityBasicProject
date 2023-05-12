@@ -1,6 +1,8 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Pool;
 
 public class EnemyManager : MonoBehaviour
 {
@@ -23,36 +25,69 @@ public class EnemyManager : MonoBehaviour
     [SerializeField] int enemyLimit = 10;
     [SerializeField] int enemyCount = 0;
 
+    IObjectPool<GameObject> enemyPool;
+
+    public IObjectPool<GameObject> Pool
+    {
+        get
+        {
+            if(enemyPool == null)
+            {
+                enemyPool = new ObjectPool<GameObject>(CreatePooledItem, OnGet, OnRelease, OnDestroyed, true, enemyLimit, enemyLimit);
+            }
+            return enemyPool;
+        }
+    }
+
+    GameObject CreatePooledItem()
+    {
+        Vector3 spawnPos = Return_RandomPosition();
+        while (!agent.CalculatePath(spawnPos, new NavMeshPath()))
+            spawnPos = Return_RandomPosition();
+        Vector3 movePos = Return_RandomPosition();
+        while (Vector3.Distance(spawnPos, movePos) < 50 || !agent.CalculatePath(movePos, new NavMeshPath()))
+            movePos = Return_RandomPosition();
+
+        GameObject enemy = Instantiate(enemyPrafab, spawnPos, Quaternion.identity);
+        enemy.GetComponent<EnemyController>().SetMoveRoute(spawnPos, movePos);
+        enemy.GetComponent<EnemyController>().AddObserver(UIManager.GetUIManager());
+        enemy.transform.parent = GameObject.Find("Enemies").transform;
+        enemy.GetComponent<EnemyController>().pool = Pool;
+        return enemy;
+    }
+
+    void OnGet(GameObject enemy)
+    {
+        enemyCount++;
+        enemy.GetComponent<EnemyController>().Respawn();
+        enemy.SetActive(true);
+    }
+
+    void OnRelease(GameObject enemy)
+    {
+        enemyCount--;
+        enemyLimit++;
+        GameManager.GetGameManager().Score++;
+        enemy.SetActive(false);
+    }
+
+    void OnDestroyed(GameObject enemy)
+    {
+        Destroy(enemy);
+    }
+
     void Start()
     {
-        StartCoroutine(SpawnEnemy());
+        StartCoroutine(PoolGet());
     }
 
-    public void BreakEnemy()
-    {
-        enemyLimit++;
-        enemyCount--;
-        GameManager.GetGameManager().Score++;
-    }
-
-    IEnumerator SpawnEnemy()
+    IEnumerator PoolGet()
     {
         while (true)
         {
-            if(enemyCount < enemyLimit)
-            {
-                Vector3 spawnPos = Return_RandomPosition();
-                while (!agent.CalculatePath(spawnPos, new NavMeshPath()))
-                    spawnPos = Return_RandomPosition();
-                Vector3 movePos = Return_RandomPosition();
-                while (Vector3.Distance(spawnPos, movePos) < 50 || !agent.CalculatePath(movePos, new NavMeshPath()))
-                    movePos = Return_RandomPosition();
-
-                GameObject enemy = Instantiate(enemyPrafab, spawnPos, Quaternion.identity);
-                enemy.GetComponent<EnemyController>().SetMoveRoute(spawnPos, movePos);
-                enemyCount++;
-            }
-            yield return new WaitForSeconds(Random.Range(10, 30));
+            if (enemyCount < enemyLimit)
+                Pool.Get();
+            yield return new WaitForSeconds(10f);
         }
     }
 

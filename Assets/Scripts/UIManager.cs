@@ -1,8 +1,9 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class UIManager : MonoBehaviour, IGameObserver
 {
     static UIManager uiManager;
 
@@ -19,6 +20,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] GameObject[] screens = new GameObject[2];
     [SerializeField] Text scoreText, lifeText;
     [SerializeField] Toggle shotToggle;
+    [SerializeField] GameObject dotSight;
 
     private void Start()
     {
@@ -42,11 +44,14 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    public void UpdateUI()
+    void UpdateUI()
     {
         scoreText.text = "Score : " + GameManager.GetGameManager().Score;
         lifeText.text = "Life : " + GameManager.GetGameManager().Life;
-        shotToggle.interactable = GameManager.GetGameManager().Ready;
+        shotToggle.interactable = GameManager.GetGameManager().Shot == GameManager.ShotMode.Ready;
+
+        if(GameManager.GetGameManager().Life == 0)
+            GameOver();
     }
 
     private void Update()
@@ -90,9 +95,25 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    public void GameOver()
+    void GameOver()
     {
         Time.timeScale = 0f;
         ScreenSet(2);
+    }
+
+    public void ReceiveSubject()
+    {
+        UpdateUI();
+        switch (GameManager.GetGameManager().Shot)
+        {
+            case GameManager.ShotMode.Shot:
+                dotSight.SetActive(true);
+                break;
+            case GameManager.ShotMode.Reload:
+                dotSight.SetActive(false);
+                break;
+            case GameManager.ShotMode.Ready:
+                break;
+        }
     }
 }

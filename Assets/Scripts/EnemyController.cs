@@ -1,8 +1,10 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Pool;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IGameSubject
 {
     [SerializeField] Transform cannonTransform;
     [SerializeField] GameObject shellPrefab;
@@ -11,14 +13,22 @@ public class EnemyController : MonoBehaviour
     [SerializeField] ParticleSystem tankParticle, shellParticle;
 
     [SerializeField] [Range(60f, 120f)] float viewAngle;
-    [SerializeField][Range(20f, 60f)] float viewDistance;
+    [SerializeField] [Range(20f, 60f)] float viewDistance;
     [SerializeField] LayerMask targetMask;
     [SerializeField] bool live = true;
+
+    public IObjectPool<GameObject> pool;
 
     enum Mode { Noramal, Battle }
     [SerializeField] Mode mode = Mode.Noramal;
 
     [SerializeField] Vector3 startPoint, endPoint, targetPosition;
+    List<IGameObserver> observers;
+
+    private void Awake()
+    {
+        observers = new List<IGameObserver>();
+    }
 
     public void SetMoveRoute(Vector3 pont1, Vector3 point2)
     {
@@ -75,8 +85,13 @@ public class EnemyController : MonoBehaviour
                 return;
             }
         }
-        StopCoroutine(AttackPlayer());
-        mode = Mode.Noramal;
+
+        if(mode == Mode.Battle)
+        {
+            StopCoroutine(AttackPlayer());
+            navMeshAgent.SetDestination(endPoint);
+            mode = Mode.Noramal;
+        }
     }
 
     void Move()
@@ -93,7 +108,7 @@ public class EnemyController : MonoBehaviour
         }
         else
         {
-            if (Vector3.Distance(transform.position, targetPosition) <= 20f)
+            if (Vector3.Distance(transform.position, targetPosition) > 20f)
             {
                 navMeshAgent.SetDestination(targetPosition);
             }
@@ -103,6 +118,15 @@ public class EnemyController : MonoBehaviour
                 transform.LookAt(targetPosition);
             }
         }
+    }
+
+    public void Respawn()
+    {
+        transform.position = startPoint;
+        GetComponent<Collider>().enabled = true;
+        foreach (MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
+            meshRenderer.enabled = true;
+        navMeshAgent.SetDestination(endPoint);
     }
 
     IEnumerator AttackPlayer()
@@ -122,7 +146,9 @@ public class EnemyController : MonoBehaviour
             live = false;
             StopCoroutine(AttackPlayer());
             tankParticle.Play();
-            EnemyManager.GetEnemyManager().BreakEnemy();
+            GetComponent<Collider>().enabled = false;
+            foreach (MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
+                meshRenderer.enabled = false;
             StartCoroutine(DestroyThis());
         }
     }
@@ -130,9 +156,27 @@ public class EnemyController : MonoBehaviour
     IEnumerator DestroyThis()
     {
         yield return new WaitForSeconds(1f);
+        SendObserver();
         if (Random.Range(0, 5) == 0)
             Instantiate(lifeVesslePrefab, transform.position, Quaternion.identity);
-        Destroy(gameObject);
+        pool.Release(gameObject);
     }
 
+    public void AddObserver(IGameObserver shotObserver)
+    {
+        observers.Add(shotObserver);
+    }
+
+    public void RemoveObserver(IGameObserver shotObserver)
+    {
+        observers.Remove(shotObserver);
+    }
+
+    public void SendObserver()
+    {
+        foreach (IGameObserver observer in observers)
+        {
+            observer.ReceiveSubject();
+        }
+    }
 }

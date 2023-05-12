@@ -1,39 +1,58 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class TankController : MonoBehaviour
+public class TankController : MonoBehaviour, IGameSubject
 {
     [SerializeField] new Rigidbody rigidbody;
     [SerializeField] Transform turretTransform;
 
-    [SerializeField] float power;
+    [SerializeField] [Range(1, 5)] float power;
+    
+    List<IGameObserver> observers;
 
-    // Update is called once per frame
-    void Update()
+    [SerializeField]  Vector2 moveDir, turnDir;
+
+    private void Awake()
     {
-        TurretMovement();
-        BodyMovement();
+        observers = new List<IGameObserver>();
     }
 
-    void BodyMovement()
+    private void Update()
     {
-        float h = Input.GetAxis("Horizontal");
-        float v = Input.GetAxis("Vertical");
-
-        rigidbody.velocity = v * power * transform.forward;
-        if(v != 0f)
-            transform.localEulerAngles += h / 10 * transform.up;
+        Move();
+        Turn();
     }
 
-    void TurretMovement()
+    void Move()
     {
-        if(Input.GetKey(KeyCode.Q))
+        rigidbody.velocity = moveDir.y * power * transform.forward;
+        if (moveDir.y != 0f)
+            transform.localEulerAngles += moveDir.x / 10 * transform.up;
+    }
+
+    void Turn()
+    {
+        if(turnDir.x != 0)
+            turretTransform.localEulerAngles += new Vector3(0, turnDir.x / 10, 0);
+        if (turnDir.y != 0)
         {
-            turretTransform.localEulerAngles -= transform.up / 5;
+            Vector3 angle = turretTransform.eulerAngles + new Vector3(-turnDir.y / 10, 0, 0);
+            angle.x = (angle.x > 180f) ? angle.x - 360f : angle.x;
+            angle.x = Mathf.Clamp(angle.x, -30f, 20f);
+            turretTransform.rotation = Quaternion.Euler(angle);
         }
-        else if (Input.GetKey(KeyCode.E))
-        {
-            turretTransform.localEulerAngles += transform.up / 5;
-        }
+    }
+
+    void OnMove(InputValue inputValue)
+    {
+        moveDir = inputValue.Get<Vector2>();
+    }
+
+    void OnLook(InputValue inputValue)
+    {
+        turnDir = inputValue.Get<Vector2>();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -41,6 +60,25 @@ public class TankController : MonoBehaviour
         if(collision.transform.tag == "Shell")
         {
             GameManager.GetGameManager().Life--;
+            SendObserver();
+        }
+    }
+
+    public void AddObserver(IGameObserver shotObserver)
+    {
+        observers.Add(shotObserver);
+    }
+
+    public void RemoveObserver(IGameObserver shotObserver)
+    {
+        observers.Remove(shotObserver);
+    }
+
+    public void SendObserver()
+    {
+        foreach (IGameObserver observer in observers)
+        {
+            observer.ReceiveSubject();
         }
     }
 }

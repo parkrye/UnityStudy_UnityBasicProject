@@ -1,37 +1,62 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
+using UnityEngine.Pool;
 
-public class CannonController : MonoBehaviour
+public class CannonController : MonoBehaviour, IGameSubject
 {
     [SerializeField] Transform cannonTransform;
     [SerializeField] GameObject shellPrefab;
     [SerializeField] ParticleSystem shellParticle;
 
-    [SerializeField] float coolTime;
+    [SerializeField] [Range(1, 5)] float coolTime;
 
-    private void Start()
+    List<IGameObserver> observers;
+
+    private void Awake()
     {
-        StartCoroutine(CoolTime());
+        observers = new List<IGameObserver>();
     }
 
-    // Update is called once per frame
-    void Update()
+    void OnFire()
     {
-        if (GameManager.GetGameManager().Ready && Input.GetKeyUp(KeyCode.Space))
+        if (GameManager.GetGameManager().Shot == GameManager.ShotMode.Ready)
+        {
+            GameManager.GetGameManager().Shot = GameManager.ShotMode.Shot;
+            SendObserver();
+        }
+        else if (GameManager.GetGameManager().Shot == GameManager.ShotMode.Shot)
         {
             shellParticle.Play();
             Instantiate(shellPrefab, cannonTransform.position, cannonTransform.rotation);
-            GameManager.GetGameManager().Ready = false;
+            StartCoroutine(CoolTime());
+            GameManager.GetGameManager().Shot = GameManager.ShotMode.Reload;
+            SendObserver();
         }
     }
 
     IEnumerator CoolTime()
     {
-        while (true)
+        yield return new WaitForSeconds(coolTime);
+        GameManager.GetGameManager().Shot = GameManager.ShotMode.Ready;
+        SendObserver();
+    }
+
+    public void AddObserver(IGameObserver shotObserver)
+    {
+        observers.Add(shotObserver);
+    }
+
+    public void RemoveObserver(IGameObserver shotObserver)
+    {
+        observers.Remove(shotObserver);
+    }
+
+    public void SendObserver()
+    {
+        foreach(IGameObserver observer in observers)
         {
-            yield return new WaitForSeconds(coolTime);
-            GameManager.GetGameManager().Ready = true;
+            observer.ReceiveSubject();
         }
     }
 }
