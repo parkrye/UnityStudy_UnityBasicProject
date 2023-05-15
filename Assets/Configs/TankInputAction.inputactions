@@ -1,5 +1,5 @@
 {
-    "name": "InputAction",
+    "name": "TankInputAction",
     "maps": [
         {
             "name": "Player",
@@ -93,7 +93,7 @@
                     "name": "",
                     "id": "d5ff77cf-1d8a-4537-9d56-1557dcb67762",
                     "path": "<Keyboard>/space",
-                    "interactions": "",
+                    "interactions": "Press(behavior=2)",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Fire",
