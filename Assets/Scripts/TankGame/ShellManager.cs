@@ -8,6 +8,7 @@ namespace TankGameScripts
     {
         [SerializeField] new Rigidbody rigidbody;
         [SerializeField] new ParticleSystem particleSystem;
+        [SerializeField] new AudioSource audio;
 
         [SerializeField][Range(800, 1200)] float power;
 
@@ -29,6 +30,7 @@ namespace TankGameScripts
 
         private void OnCollisionEnter(Collision collision)
         {
+            audio.Play();
             particleSystem.Play();
             GetComponent<MeshRenderer>().enabled = false;
             GetComponent<Collider>().enabled = false;

@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using TankGameScripts;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,14 +9,17 @@ namespace PlatformerGame
     {
         [SerializeField] CameraController cameraController;
         [SerializeField] Transform cameraTransform;
+        [SerializeField] Transform shotTransform;
         [SerializeField] new Rigidbody rigidbody;
+        [SerializeField] new CapsuleCollider collider;
         [SerializeField] Animator animator;
+        [SerializeField] GameObject bulletPrefab;
 
         [SerializeField] [Range (1, 10)] float movePower, jumpPower;
 
         [SerializeField] float moveDir;       // 이동 방향
         [SerializeField] float prevDir;       // 이전 이동 방향
-        [SerializeField] bool isGrounded;
+        [SerializeField] bool isGrounded, isSit;
 
         // Update is called once per frame
         void Update()
@@ -29,45 +30,107 @@ namespace PlatformerGame
 
         void Move()
         {
-            rigidbody.AddForce(cameraTransform.right * moveDir * movePower);
+            rigidbody.AddForce(cameraTransform.right * moveDir * movePower, ForceMode.Acceleration);
         }
 
         void OnMove(InputValue inputValue)
         {
             moveDir = inputValue.Get<Vector2>().x;
 
-            if(moveDir > 0) transform.LookAt(transform.position + cameraTransform.right.normalized);
-            else transform.LookAt(transform.position - cameraTransform.right.normalized);
+            if(moveDir == 0)
+            {
+                if (moveDir == 0 && animator.GetBool("Run"))
+                    animator.SetBool("Run", false);
+            }
+            else
+            {
+                cameraController.CameraTurn((int)moveDir);
 
-            if(moveDir != 0 && !animator.GetBool("Run"))
-                animator.SetBool("Run", true);
-            else if (moveDir == 0 && animator.GetBool("Run"))
-                animator.SetBool("Run", false);
+                if (moveDir > 0) transform.LookAt(transform.position + cameraTransform.right.normalized);
+                else transform.LookAt(transform.position - cameraTransform.right.normalized);
+
+                if (!animator.GetBool("Run"))
+                    animator.SetBool("Run", true);
+            }
         }
 
-        void OnJump(InputValue inputValue)
+        void OnJump()
         {
             if (isGrounded)
             {
                 animator.SetTrigger("Jump");
                 animator.SetBool("Fall", true);
-                rigidbody.AddForce(transform.up * jumpPower, ForceMode.Impulse);
+                rigidbody.AddForce(transform.up * jumpPower, ForceMode.VelocityChange);
             }
+        }
+
+        void OnSit()
+        {
+            if (isGrounded && !isSit)
+            {
+                collider.height = 0.9f;
+                collider.center = new Vector3(0, 0.4f, 0);
+                isSit = true;
+                animator.SetTrigger("Sit");
+                if (animator.GetBool("Run"))
+                {
+                    rigidbody.AddForce(cameraTransform.right * moveDir * movePower * 2f, ForceMode.VelocityChange);
+                }
+            }
+        }
+
+        public void OnSitOver()
+        {
+            collider.height = 1.8f;
+            collider.center = new Vector3(0, 0.8f, 0);
+            isSit = false;
+        }
+
+        void OnAttack()
+        {
+            if(isGrounded && !isSit)
+            {
+                animator.SetTrigger("Attack");
+            }
+        }
+
+        public void OnBulletShot()
+        {
+            GameObject bullet = Instantiate(bulletPrefab, shotTransform.position, shotTransform.rotation);
         }
 
         void OnTurn(InputValue inputValue)
         {
             if (inputValue.Get<Vector2>().x > 0)
             {
-                transform.Rotate(0f, 90f, 0f);
-                cameraController.CameraTurn(1);
+                StartCoroutine(TurnCoroutine(-1));
             }
             else if (inputValue.Get<Vector2>().x < 0)
             {
-                transform.Rotate(0f, -90f, 0f);
-                cameraController.CameraTurn(-1);
+                StartCoroutine(TurnCoroutine(1));
             }
+        }
 
+        IEnumerator TurnCoroutine(int dir)
+        {
+            for(int i = 0; i < 90; i++)
+            {
+                transform.Rotate(0f, dir, 0f);
+                yield return new WaitForSeconds(0.0001f);
+            }
+        }
+
+        void OnESC()
+        {
+            UIManager.GetUIManager().SetScreen(1);
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if(other.gameObject.name == "DeadZone")
+            {
+                UIManager.GetUIManager().SetScreen(2);
+            }
         }
 
         void IsGround()

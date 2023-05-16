@@ -10,6 +10,7 @@ namespace TankGameScripts
         [SerializeField] Transform cannonTransform;
         [SerializeField] GameObject shellPrefab;
         [SerializeField] ParticleSystem shellParticle;
+        [SerializeField] AudioSource[] audios;  // 장전, 사격
 
         [SerializeField][Range(1, 5)] float coolTime;
 
@@ -24,11 +25,13 @@ namespace TankGameScripts
         {
             if (GameManager.GetGameManager().Shot == GameManager.ShotMode.Ready)
             {
+                audios[0].Play();
                 GameManager.GetGameManager().Shot = GameManager.ShotMode.Shot;
                 SendObserver();
             }
             else if (GameManager.GetGameManager().Shot == GameManager.ShotMode.Shot)
             {
+                audios[1].Play();
                 shellParticle.Play();
                 Instantiate(shellPrefab, cannonTransform.position, cannonTransform.rotation);
                 StartCoroutine(CoolTime());

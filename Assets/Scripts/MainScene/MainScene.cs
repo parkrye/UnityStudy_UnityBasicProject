@@ -8,7 +8,7 @@ public class MainScene : MonoBehaviour
     [SerializeField] GameObject Screen1, Screen2;
     [SerializeField] GameObject gamelist;
     [SerializeField] Button[] games;
-    public enum GameScene { Main, Tank }
+    public enum GameScene { Main, Tank, Platformer }
     [SerializeField] GameScene selectedGame;
 
     // Start is called before the first frame update
@@ -50,6 +50,9 @@ public class MainScene : MonoBehaviour
         {
             case GameScene.Tank:
                 SceneManager.LoadScene(1, LoadSceneMode.Single);
+                break;
+            case GameScene.Platformer:
+                SceneManager.LoadScene(2, LoadSceneMode.Single);
                 break;
         }
     }

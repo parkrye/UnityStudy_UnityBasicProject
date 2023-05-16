@@ -14,6 +14,7 @@ namespace TankGameScripts
         [SerializeField] GameObject lifeVesslePrefab;
         [SerializeField] NavMeshAgent navMeshAgent;
         [SerializeField] ParticleSystem tankParticle, shellParticle;
+        [SerializeField] AudioSource[] audios;  // 운행, 평상, 사격, 폭발
 
         [SerializeField][Range(60f, 120f)] float viewAngle;
         [SerializeField][Range(20f, 60f)] float viewDistance;
@@ -101,6 +102,8 @@ namespace TankGameScripts
         {
             if (mode == Mode.Noramal)
             {
+                audios[0].Stop();
+                audios[1].Play();
                 if (Vector3.Distance(transform.position, endPoint) <= 10f)
                 {
                     Vector3 temp = endPoint;
@@ -111,6 +114,8 @@ namespace TankGameScripts
             }
             else
             {
+                audios[0].Play();
+                audios[1].Stop();
                 if (Vector3.Distance(transform.position, targetPosition) > 20f)
                 {
                     navMeshAgent.SetDestination(targetPosition);
@@ -136,6 +141,7 @@ namespace TankGameScripts
         {
             while (mode == Mode.Battle)
             {
+                audios[2].Play();
                 shellParticle.Play();
                 Instantiate(shellPrefab, cannonTransform.position, cannonTransform.rotation);
                 yield return new WaitForSeconds(10);
@@ -146,6 +152,7 @@ namespace TankGameScripts
         {
             if (collision.transform.tag == "Shell")
             {
+                audios[3].Play();
                 live = false;
                 StopCoroutine(AttackPlayer());
                 tankParticle.Play();

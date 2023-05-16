@@ -9,6 +9,7 @@ namespace TankGameScripts
     {
         [SerializeField] new Rigidbody rigidbody;
         [SerializeField] Transform turretTransform;
+        [SerializeField] AudioSource[] audios;  // 운행, 평상, 폭발
 
         [SerializeField][Range(1, 5)] float power;
 
@@ -29,6 +30,15 @@ namespace TankGameScripts
 
         void Move()
         {
+            if (rigidbody.velocity == Vector3.zero)
+            {
+                audios[0].Stop();
+                audios[1].Play();
+                return;
+            }
+
+            audios[0].Play();
+            audios[1].Stop();
             rigidbody.velocity = moveDir.y * power * transform.forward;
             if (moveDir.y != 0f)
                 transform.localEulerAngles += moveDir.x / 10 * transform.up;
@@ -62,6 +72,10 @@ namespace TankGameScripts
             if (collision.transform.tag == "Shell")
             {
                 GameManager.GetGameManager().Life--;
+                if(GameManager.GetGameManager().Life == 0)
+                {
+                    audios[2].Play();
+                }
                 SendObserver();
             }
         }
