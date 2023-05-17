@@ -1,8 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace homework
+namespace Homework
 {
     public class Shell : MonoBehaviour
     {

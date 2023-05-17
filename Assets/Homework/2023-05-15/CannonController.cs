@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace homework
+namespace Homework
 {
     public class CannonController : MonoBehaviour
     {

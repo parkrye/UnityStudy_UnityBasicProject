@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace homework
+namespace Homework
 {
     public class TankMovement : MonoBehaviour
     {
