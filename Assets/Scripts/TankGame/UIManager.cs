@@ -1,10 +1,8 @@
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Device;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace TankGameScripts
+namespace TankGame
 {
     public class UIManager : MonoBehaviour, IGameObserver
     {

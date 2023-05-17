@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Shooting
+namespace ShootingGame
 {
     public class CameraController : MonoBehaviour
     {

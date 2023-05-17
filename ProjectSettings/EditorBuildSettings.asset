@@ -6,12 +6,15 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Imports/Scenes/MainScene.unity
+    path: Assets/Scenes/MainScene.unity
     guid: e04809c23d1aabd40a7479dadc052e0d
   - enabled: 1
-    path: Assets/Imports/Scenes/TankGameScene.unity
+    path: Assets/Scenes/TankGameScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/Imports/Scenes/PlatformerGame.unity
+    path: Assets/Scenes/PlatformerGameScene.unity
     guid: e73e9d65678fc274aaff25c316bd69f1
+  - enabled: 1
+    path: Assets/Scenes/ShootingGameScene.unity
+    guid: 157b5e3b3ef4ed24a9ae7b180b4fea70
   m_configObjects: {}

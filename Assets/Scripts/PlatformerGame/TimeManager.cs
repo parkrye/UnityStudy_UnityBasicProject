@@ -1,31 +1,56 @@
-using System.Collections;
-using System.Collections.Generic;
+using PlatformerGame;
 using UnityEngine;
 
-public class TimeManager : MonoBehaviour
+namespace PlatformerGame
 {
-    [SerializeField] float timer;
-    [SerializeField] int time;
-    
-    // Start is called before the first frame update
-    void Start()
+    public class TimeManager : MonoBehaviour
     {
-        timer = 0f;
-        time = 100;
-        UIManager.GetUIManager().SetTimer(time);
-    }
+        static TimeManager timeManager;
 
-    // Update is called once per frame
-    void Update()
-    {
-        timer += Time.deltaTime;
-        if(timer >= 1f)
+        public static TimeManager GetTimeManager()
         {
-            timer -= 1f;
-            time--;
+            return timeManager;
+        }
+
+        void Awake()
+        {
+            if (timeManager == null)
+                timeManager = this;
+        }
+
+        [SerializeField] float timer;
+        [SerializeField] int time;
+
+        // Start is called before the first frame update
+        void Start()
+        {
+            timer = 0f;
+            time = 100;
             UIManager.GetUIManager().SetTimer(time);
-            if (time == 0)
-                UIManager.GetUIManager().SetScreen(4);
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+            timer += Time.deltaTime;
+            if (timer >= 1f)
+            {
+                timer -= 1f;
+                if (time == 0)
+                {
+                    PlayerContoller.GetPlayerContoller().GameClear();
+                    Destroy(this);
+                }
+                else
+                    time--;
+                UIManager.GetUIManager().SetTimer(time);
+            }
+        }
+
+        public void AddTime(int add = 1)
+        {
+            time += add;
         }
     }
+
 }

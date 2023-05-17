@@ -1,9 +1,7 @@
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
-namespace TankGameScripts
+namespace TankGame
 {
     public class CameraController : MonoBehaviour, IGameObserver
     {

@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 
-namespace TankGameScripts
+namespace TankGame
 {
     public class CannonController : MonoBehaviour, IGameSubject
     {

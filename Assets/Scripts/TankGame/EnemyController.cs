@@ -5,7 +5,7 @@ using UnityEngine.AI;
 using UnityEngine.Pool;
 
 
-namespace TankGameScripts
+namespace TankGame
 {
     public class EnemyController : MonoBehaviour, IGameSubject
     {
@@ -38,7 +38,7 @@ namespace TankGameScripts
         {
             startPoint = pont1;
             endPoint = point2;
-            navMeshAgent.SetDestination(endPoint);
+            navMeshAgent.destination = endPoint;
         }
 
         // Update is called once per frame
@@ -93,7 +93,7 @@ namespace TankGameScripts
             if (mode == Mode.Battle)
             {
                 StopCoroutine(AttackPlayer());
-                navMeshAgent.SetDestination(endPoint);
+                navMeshAgent.destination = endPoint;
                 mode = Mode.Noramal;
             }
         }
@@ -109,7 +109,7 @@ namespace TankGameScripts
                     Vector3 temp = endPoint;
                     endPoint = startPoint;
                     startPoint = temp;
-                    navMeshAgent.SetDestination(endPoint);
+                    navMeshAgent.destination = endPoint;
                 }
             }
             else
@@ -118,7 +118,7 @@ namespace TankGameScripts
                 audios[1].Stop();
                 if (Vector3.Distance(transform.position, targetPosition) > 20f)
                 {
-                    navMeshAgent.SetDestination(targetPosition);
+                    navMeshAgent.destination = targetPosition;
                 }
                 else
                 {
@@ -134,7 +134,7 @@ namespace TankGameScripts
             GetComponent<Collider>().enabled = true;
             foreach (MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
                 meshRenderer.enabled = true;
-            navMeshAgent.SetDestination(endPoint);
+            navMeshAgent.destination = endPoint;
         }
 
         IEnumerator AttackPlayer()

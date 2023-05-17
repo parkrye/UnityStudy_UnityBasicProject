@@ -1,4 +1,6 @@
 using System.Collections;
+using TankGame;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,6 +9,19 @@ namespace PlatformerGame
 {
     public class PlayerContoller : MonoBehaviour
     {
+        static PlayerContoller playerController;
+
+        void Awake()
+        {
+            if (playerController == null)
+                playerController = this;
+        }
+
+        public static PlayerContoller GetPlayerContoller()
+        {
+            return playerController;
+        }
+
         [SerializeField] CameraController cameraController;
         [SerializeField] Transform cameraTransform;
         [SerializeField] Transform shotTransform;
@@ -97,6 +112,18 @@ namespace PlatformerGame
         public void OnBulletShot()
         {
             GameObject bullet = Instantiate(bulletPrefab, shotTransform.position, shotTransform.rotation);
+        }
+
+        public void GameClear()
+        {
+            StartCoroutine(GameClearCoroutine());
+        }
+
+        IEnumerator GameClearCoroutine()
+        {
+            animator.SetTrigger("Clear");
+            yield return new WaitForSeconds(3f);
+            UIManager.GetUIManager().SetScreen(4);
         }
 
         void OnTurn(InputValue inputValue)

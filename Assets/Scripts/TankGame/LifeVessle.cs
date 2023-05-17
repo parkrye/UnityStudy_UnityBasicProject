@@ -1,8 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace TankGameScripts
+namespace TankGame
 {
 
     public class LifeVessle : MonoBehaviour

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace TankGameScripts
+namespace TankGame
 {
     public class TankController : MonoBehaviour, IGameSubject
     {
@@ -30,15 +30,6 @@ namespace TankGameScripts
 
         void Move()
         {
-            if (rigidbody.velocity == Vector3.zero)
-            {
-                audios[0].Stop();
-                audios[1].Play();
-                return;
-            }
-
-            audios[0].Play();
-            audios[1].Stop();
             rigidbody.velocity = moveDir.y * power * transform.forward;
             if (moveDir.y != 0f)
                 transform.localEulerAngles += moveDir.x / 10 * transform.up;
@@ -60,6 +51,16 @@ namespace TankGameScripts
         void OnMove(InputValue inputValue)
         {
             moveDir = inputValue.Get<Vector2>();
+            if (moveDir == Vector2.zero)
+            {
+                audios[0].Stop();
+                audios[1].Play();
+            }
+            else
+            {
+                audios[0].Play();
+                audios[1].Stop();
+            }
         }
 
         void OnLook(InputValue inputValue)

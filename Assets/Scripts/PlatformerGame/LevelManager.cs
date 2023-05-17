@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,6 +9,7 @@ namespace PlatformerGame
         [SerializeField] Transform playerTransform, deadZoneTransform;
         [SerializeField] int mapSizeX, mapSizeZ;
         [SerializeField] GameObject[] blockPrefabs; // 벽돌, 구름, 광석, 모래
+        [SerializeField] GameObject lifeVesslePrefab;
 
         int[,] map;
 
@@ -66,11 +68,25 @@ namespace PlatformerGame
             playerTransform.position = new Vector3(mapSizeX * 0.5f * 1.2f, map[(int)(mapSizeX * 0.5f), (int)(mapSizeZ * 0.5f)] % 10 + 3f, mapSizeZ * 0.5f * 1.2f);
         }
 
+        void Start()
+        {
+            StartCoroutine(SpawnVessle());
+        }
+
         public void ReceiveMsg(Vector3 position)
         {
             GameObject block = Instantiate(blockPrefabs[Random.Range(0, blockPrefabs.Length)]);
             block.transform.position = new Vector3(position.x, position.y + Random.Range(-10, 11), position.z);
             block.transform.parent = transform;
+        }
+
+        IEnumerator SpawnVessle()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(Random.Range(1, 5));
+                Instantiate(lifeVesslePrefab, new Vector3(Random.Range(0, mapSizeX * 1.2f), 100f, Random.Range(0, mapSizeX * 1.2f)), Quaternion.identity);
+            }
         }
     }
 }

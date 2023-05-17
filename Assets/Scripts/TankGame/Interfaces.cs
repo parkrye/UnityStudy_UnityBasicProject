@@ -1,5 +1,5 @@
 
-namespace TankGameScripts
+namespace TankGame
 {
 
     public interface IGameSubject

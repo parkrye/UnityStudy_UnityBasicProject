@@ -8,6 +8,7 @@ TagManager:
   - Shell
   - Enemy
   - RandomLevelArt
+  - Bullet
   layers:
   - Default
   - TransparentFX

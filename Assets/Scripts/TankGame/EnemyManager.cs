@@ -1,10 +1,9 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Pool;
 
-namespace TankGameScripts
+namespace TankGame
 {
     public class EnemyManager : MonoBehaviour
     {

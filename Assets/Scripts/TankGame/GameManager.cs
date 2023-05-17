@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace TankGameScripts
+namespace TankGame
 {
     public class GameManager : MonoBehaviour
     {
