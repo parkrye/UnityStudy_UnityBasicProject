@@ -17,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Imports/03_ShootingGame/Scenes/ShootingGameScene.unity
     guid: 157b5e3b3ef4ed24a9ae7b180b4fea70
+  - enabled: 1
+    path: Assets/Imports/04_RPG/Scenes/04_RPGScene.unity
+    guid: e9e0a2f641aacea4fa1108dfbaf79917
   m_configObjects: {}
