@@ -1,39 +1,35 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace Homework
 {
     public class TankTouch : MonoBehaviour
     {
         [SerializeField] Animator animator;
-        [SerializeField] Vector3 touchPos, movePos;
+        [SerializeField] Rigidbody rb;
+        [SerializeField] Vector2 moveDir;
+
+        void Update()
+        {
+            Move();
+        }
+
+        void Move()
+        {
+            rb.velocity = moveDir.x * transform.right * 10 + moveDir.y * transform.forward * 10;
+        }
 
         public void OnFireButton()
         {
             animator.SetTrigger("Fire");
         }
 
-        void Update()
+        void OnMove(InputValue inputValue)
         {
-            
+            moveDir = inputValue.Get<Vector2>();
         }
 
-        public void OnTouchDownButton()
-        {
-            touchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition).normalized;
-        }
-
-        public void OnTouchingButton()
-        {
-            movePos = Camera.main.ScreenToWorldPoint(Input.mousePosition).normalized;
-        }
-
-        public void OnTouchUpButton()
-        {
-            touchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition).normalized;
-            movePos = Camera.main.ScreenToWorldPoint(Input.mousePosition).normalized;
-        }
     }
 
 }
