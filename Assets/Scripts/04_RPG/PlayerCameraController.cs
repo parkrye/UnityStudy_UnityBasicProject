@@ -1,5 +1,4 @@
 using Cinemachine;
-using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,17 +8,20 @@ namespace RPG
     {
         [SerializeField] CinemachineVirtualCamera[] cameras;
         [SerializeField] int camNum;
+        [SerializeField] Transform lookatPoint;
 
         void OnCamChange(InputValue inputValue)
         {
-            if (Convert.ToInt32(inputValue.Get()) > 0)
+            Vector2 dir = inputValue.Get<Vector2>();
+
+            if (dir.x > 0)
             {
                 cameras[camNum].Priority = 0;
                 if (camNum == 2) camNum = 0;
                 else camNum++;
                 cameras[camNum].Priority = 1;
             }
-            else if (Convert.ToInt32(inputValue.Get()) < 0)
+            else if (dir.x < 0)
             {
                 cameras[camNum].Priority = 0;
                 if (camNum == 0) camNum = 2;

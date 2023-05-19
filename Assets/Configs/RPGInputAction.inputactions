@@ -60,18 +60,27 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "CamChange",
+                    "name": "Talk",
                     "type": "Button",
-                    "id": "3e12272a-da81-4ff9-8613-2e94d1296a50",
+                    "id": "2a5f4e55-b66e-4154-846e-d5e82f50aa0e",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Look",
+                    "name": "CamChange",
                     "type": "Value",
-                    "id": "9cc6bc0a-5d5f-4cd9-b955-b5742fd2a44d",
+                    "id": "efbac1f5-06c8-4699-b2a1-f750937cde05",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "MouseMove",
+                    "type": "Value",
+                    "id": "8a4cf809-06da-47cf-8863-a1f425c107b3",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -190,9 +199,20 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "1D Axis",
-                    "id": "9d9d2a8a-2cc9-408a-8614-b2228f70c103",
-                    "path": "1DAxis",
+                    "name": "",
+                    "id": "a1198386-f86d-4ffd-aaa4-9866167b5400",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Talk",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "2D Vector",
+                    "id": "9c5acdd6-8c67-46b6-910a-00fa77b7cfcc",
+                    "path": "2DVector",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -201,35 +221,57 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "negative",
-                    "id": "f836b0b2-879a-4dea-8799-bcedba64ce2e",
+                    "name": "up",
+                    "id": "3869e126-dbbd-45e7-9e37-34b8658bad02",
                     "path": "<Keyboard>/leftBracket",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "CamChange",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "positive",
-                    "id": "95da5fb4-7c07-4d7b-9e93-7c6e64be59de",
+                    "name": "left",
+                    "id": "c725c15b-cc40-49c6-887e-0105cda2a116",
+                    "path": "<Keyboard>/leftBracket",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "CamChange",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "cb88dd8c-6082-4ac1-80fe-9e352a09c8e6",
                     "path": "<Keyboard>/rightBracket",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "CamChange",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "62c9b0e7-805e-430c-b217-c6d459389592",
+                    "path": "<Keyboard>/rightBracket",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
                     "action": "CamChange",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
                 {
                     "name": "",
-                    "id": "c3967aca-98b6-4c33-a191-b1a56c27113a",
-                    "path": "<Pointer>/delta",
+                    "id": "c6bed7d6-2b9e-494b-bcba-ce6a263e8721",
+                    "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "Look",
+                    "action": "MouseMove",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

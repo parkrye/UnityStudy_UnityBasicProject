@@ -8,11 +8,16 @@ namespace RPG
         Animator animator;
         Rigidbody rb;
         [SerializeField] Vector2 moveDir;
-        [SerializeField] float moveSpeed, jumpPower, turnSpeed;
+        [SerializeField] Vector2 nowMousePos, prevMousePos;
+        [SerializeField] float moveSpeed, jumpPower, turnXSpeed, turnYSpeed;
+        [SerializeField] Transform lookatPoint;
 
         // Start is called before the first frame update
         void Awake()
         {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Confined;
+
             animator = GetComponent<Animator>();
             rb = GetComponent<Rigidbody>();
         }
@@ -22,28 +27,49 @@ namespace RPG
         {
             IsGround();
             Move();
-            Turn();
+        }
+
+        void LateUpdate()
+        {
+            if (lookatPoint.localPosition.y < 0f)
+            {
+                lookatPoint.localPosition = new Vector3(0f, 0f, 1f);
+            }
+            if (lookatPoint.localPosition.y > 3f)
+            {
+                lookatPoint.localPosition = new Vector3(0f, 3f, 1f);
+            }
         }
 
         void Move()
         {
-
             if (!animator.GetBool("Crouch") && !animator.GetBool("Guard") && !animator.GetBool("Attack"))
             {
                 if (!animator.GetBool("Run"))
                 {
-                    rb.AddForce((transform.forward * moveDir.y) * moveSpeed, ForceMode.Force);
+                    rb.AddForce((transform.forward * moveDir.y + transform.right * moveDir.x) * moveSpeed, ForceMode.Force);
                 }
                 else
                 {
-                    rb.AddForce((transform.forward * moveDir.y) * moveSpeed * 1.5f, ForceMode.Force);
+                    rb.AddForce((transform.forward * moveDir.y + transform.right * moveDir.x) * moveSpeed * 1.5f, ForceMode.Force);
                 }
             }
         }
 
-        void Turn()
+        void OnMouseMove(InputValue inputValue)
         {
-            transform.Rotate(transform.up * moveDir.x * turnSpeed);
+            nowMousePos = inputValue.Get<Vector2>();
+
+            if(prevMousePos != Vector2.zero)
+            {
+                if(lookatPoint.localPosition.y >= 0f && lookatPoint.localPosition.y <= 3f)
+                {
+                    lookatPoint.Translate(Vector3.up * (prevMousePos.y - nowMousePos.y) * turnYSpeed * Time.deltaTime);
+                }
+                transform.Rotate(Vector3.up * (prevMousePos.x - nowMousePos.x) * turnXSpeed * Time.deltaTime);
+            }
+
+            prevMousePos = nowMousePos;
         }
 
         void OnMove(InputValue inputValue)

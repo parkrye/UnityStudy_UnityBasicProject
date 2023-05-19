@@ -33,6 +33,11 @@ namespace RPG
             animator.SetBool("Guard", !animator.GetBool("Guard"));
         }
 
+        void OnTalk()
+        {
+
+        }
+
         public void OnHit()
         {
             animator.SetTrigger("Hit");
@@ -43,5 +48,4 @@ namespace RPG
             animator.SetTrigger("Dead");
         }
     }
-
 }

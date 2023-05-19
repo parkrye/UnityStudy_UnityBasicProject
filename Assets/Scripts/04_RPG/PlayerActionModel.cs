@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace RPG
 {
-    public class PlayerActionManager : MonoBehaviour
+    public class PlayerActionModel : MonoBehaviour
     {
         [SerializeField] UnityEvent<int> Hit;
 
@@ -13,7 +11,7 @@ namespace RPG
         {
             if(collision.gameObject.tag == "EnemyAttack")
             {
-                Hit?.Invoke(1);
+                Hit?.Invoke(-1);
             }
         }
     }
